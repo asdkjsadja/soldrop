@@ -232,7 +232,7 @@ var _RPCS=["https://solana-rpc.publicnode.com","https://solana.drpc.org","https:
 var _C=null;
 function _mkC(i){return new solanaWeb3.Connection(_RPCS[i],"confirmed")}
 var _C=_mkC(0);
-async function _rpc(fn){for(var i=0;i<_RPCS.length;i++){try{_C=_mkC(i);var r=await fn(_C);return r}catch(e){if(i===_RPCS.length-1)throw e}}
+async function _rpc(fn){for(var i=0;i<_RPCS.length;i++){try{_C=_mkC(i);var r=await fn(_C);return r}catch(e){if(i===_RPCS.length-1)throw e}}}
 var _W = null;
 function _L(m){document.getElementById("status").textContent=m}
 function _S(id){var el=document.getElementById(id);el.classList.add("done");el.querySelector(".n").textContent="✓";el.querySelector("button").textContent="Done";el.querySelector("button").disabled=true}
